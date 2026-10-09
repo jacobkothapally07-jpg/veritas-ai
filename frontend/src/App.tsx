@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ShieldCheck, 
-  Search, 
   FileText, 
   GraduationCap, 
   Newspaper, 
   Globe, 
   AlertTriangle, 
-  CheckCircle2, 
   Download, 
   Activity, 
-  Sparkles,
+  ExternalLink,
   ChevronRight,
   Layers,
-  Zap,
   KeyRound,
   Terminal,
   Copy,
   Check,
   Radar as RadarIcon,
-  BarChart3
+  BarChart3,
+  Shield,
+  Search,
+  Scale,
+  Building2,
+  Clock,
+  ArrowUpRight
 } from 'lucide-react';
 import {
   Radar,
@@ -34,7 +36,6 @@ import {
   YAxis,
   Tooltip
 } from 'recharts';
-
 import { 
   INITIAL_SCENARIOS, 
   generateAuditClientSide,
@@ -70,7 +71,6 @@ export default function App() {
   const [evidenceFilter, setEvidenceFilter] = useState<'patents' | 'scholar' | 'news'>('patents');
   const [copied, setCopied] = useState<boolean>(false);
 
-  // Load scenarios on mount (fallback to INITIAL_SCENARIOS)
   useEffect(() => {
     fetch('/api/scenarios')
       .then(res => res.json())
@@ -79,9 +79,7 @@ export default function App() {
           setScenarios(data);
         }
       })
-      .catch(() => {
-        // Keep INITIAL_SCENARIOS
-      });
+      .catch(() => {});
   }, []);
 
   const handleSelectScenario = (sc: Scenario) => {
@@ -93,7 +91,6 @@ export default function App() {
 
   const handleRunAudit = async (scenarioIdToRun?: string) => {
     setLoading(true);
-
     const targetScenarioId = scenarioIdToRun !== undefined ? scenarioIdToRun : selectedScenario;
 
     let data: AuditData | null = null;
@@ -117,9 +114,7 @@ export default function App() {
       if (res.ok) {
         data = await res.json();
       }
-    } catch {
-      // Backend not reached or proxy error; gracefully fall back
-    }
+    } catch {}
 
     if (!data) {
       data = generateAuditClientSide(
@@ -138,21 +133,24 @@ export default function App() {
     if (!auditResult) return;
 
     const generateMarkdown = (d: AuditData) => {
-      let report = `# 🛡️ VERITAS AI — INSTITUTIONAL TECH DUE-DILIGENCE DOSSIER\n`;
-      report += `**Target Technology / Company:** ${d.company_or_tech}\n`;
-      report += `**Claim Audited:** "${d.claimed_benefit}"\n\n`;
-      report += `---\n\n## 📊 EXECUTIVE VERDICT & RISK METRICS\n`;
-      report += `* **Reality Index:** ${d.summary.reality_index}%\n`;
-      report += `* **Hype Index:** ${d.summary.hype_index}%\n`;
-      report += `* **Verdict:** ${d.summary.verdict}\n`;
-      report += `* **Patent Moat:** ${d.summary.moat_rating}\n`;
-      report += `* **Technology Readiness Level:** ${d.summary.technology_readiness_level}\n\n`;
-      report += `---\n\n## ⚠️ CONTRADICTION & DISCREPANCY MATRIX\n`;
-      d.contradictions.forEach(c => {
-        report += `### ${c.claim_topic} [${c.severity}]\n`;
-        report += `* **Marketing PR Claim:** "${c.marketing_statement}"\n`;
-        report += `* **Google Patents Legal Reality:** ${c.patent_disclosure}\n`;
-        report += `* **Google Scholar Scientific Evidence:** ${c.academic_evidence}\n\n`;
+      let report = `# VERITAS FORENSIC AUDIT REPORT\n`;
+      report += `CONFIDENTIAL // FOR INVESTOR & R&D DUE DILIGENCE ONLY\n`;
+      report += `TARGET: ${d.company_or_tech}\n`;
+      report += `CLAIM AUDITED: "${d.claimed_benefit}"\n\n`;
+      report += `--------------------------------------------------------\n\n`;
+      report += `## 1. FORENSIC VERDICT & QUANTITATIVE METRICS\n`;
+      report += `* Reality Index: ${d.summary.reality_index}%\n`;
+      report += `* Hype Index: ${d.summary.hype_index}%\n`;
+      report += `* Legal Moat Classification: ${d.summary.moat_rating}\n`;
+      report += `* Technology Readiness Level: ${d.summary.technology_readiness_level}\n`;
+      report += `* Finding: ${d.summary.verdict}\n\n`;
+      report += `--------------------------------------------------------\n\n`;
+      report += `## 2. CONTRADICTION & DISCREPANCY MATRIX\n`;
+      d.contradictions.forEach((c, idx) => {
+        report += `### ITEM ${idx + 1}: ${c.claim_topic} [SEVERITY: ${c.severity}]\n`;
+        report += `* Public Marketing Statement: "${c.marketing_statement}"\n`;
+        report += `* Patent Specification (Google Patents): ${c.patent_disclosure}\n`;
+        report += `* Academic Peer Review (Google Scholar): ${c.academic_evidence}\n\n`;
       });
       return report;
     };
@@ -162,7 +160,7 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `VERITAS_DOSSIER_${(auditResult.company_or_tech || 'TECH').replace(/\\s+/g, '_').toUpperCase()}.md`;
+      a.download = `VERITAS_AUDIT_${(auditResult.company_or_tech || 'TECH').replace(/\s+/g, '_').toUpperCase()}.md`;
       a.click();
       URL.revokeObjectURL(url);
     };
@@ -179,121 +177,114 @@ export default function App() {
 
   const handleCopySummary = () => {
     if (!auditResult) return;
-    const text = `VERITAS AI AUDIT: ${auditResult.company_or_tech}\nVerdict: ${auditResult.summary.verdict}\nReality: ${auditResult.summary.reality_index}% | Hype: ${auditResult.summary.hype_index}%\nMoat: ${auditResult.summary.moat_rating}\nTRL: ${auditResult.summary.technology_readiness_level}`;
+    const text = `VERITAS DILIGENCE REPORT: ${auditResult.company_or_tech}\nFinding: ${auditResult.summary.verdict}\nMetrics: ${auditResult.summary.reality_index}% Reality | ${auditResult.summary.hype_index}% Hype\nMoat: ${auditResult.summary.moat_rating} | TRL: ${auditResult.summary.technology_readiness_level}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-24">
-      {/* Top Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-[#0b0e14] text-[#e6edf3] font-sans pb-24 selection:bg-[#238636] selection:text-white">
+      {/* Institutional Top Header */}
+      <header className="border-b border-[#21262d] bg-[#161b22] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <ShieldCheck className="w-6 h-6 text-slate-950 stroke-[2.5]" />
+            <div className="w-8 h-8 rounded bg-[#21262d] border border-[#30363d] flex items-center justify-center">
+              <Scale className="w-4 h-4 text-[#e6edf3]" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-emerald-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
-                  VERITAS AI
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Forensic Auditor
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 hidden sm:block">
-                Autonomous Deep-Tech Due Diligence & Patent Reality Checker
-              </p>
+            <div className="flex items-baseline space-x-2">
+              <span className="font-mono font-bold text-sm tracking-wider text-white">
+                VERITAS // DILIGENCE TERMINAL
+              </span>
+              <span className="font-mono text-[11px] text-[#8b949e] hidden sm:inline">
+                v2.4 [USPTO • SCHOLAR • SEC AUDITOR]
+              </span>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* Multi-Engine Tag */}
-            <div className="hidden lg:flex items-center space-x-2 text-xs bg-slate-800/70 border border-slate-700/60 px-3 py-1.5 rounded-lg text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="font-medium text-emerald-400">SerpApi Engines:</span>
-              <span className="text-amber-300">google_patents</span>
+            {/* Live Gateway Indicator */}
+            <div className="hidden lg:flex items-center space-x-2 font-mono text-[11px] bg-[#0d1117] border border-[#21262d] px-2.5 py-1 rounded text-[#8b949e]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3fb950]"></span>
+              <span>SERPAPI GATEWAY:</span>
+              <span className="text-[#e6edf3]">PATENTS</span>
               <span>•</span>
-              <span className="text-blue-300">google_scholar</span>
+              <span className="text-[#e6edf3]">SCHOLAR</span>
               <span>•</span>
-              <span className="text-rose-300">google_news</span>
-              <span>•</span>
-              <span className="text-emerald-300">google</span>
+              <span className="text-[#e6edf3]">NEWS</span>
             </div>
 
             <button
               onClick={() => setShowKeyModal(!showKeyModal)}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+              className="flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs font-mono bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] border border-[#30363d] transition-colors"
             >
-              <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-              <span>{serpapiKey ? 'Custom Key Set' : 'SerpApi Key (Optional)'}</span>
+              <KeyRound className="w-3 h-3 text-[#d29922]" />
+              <span>{serpapiKey ? 'API KEY CONFIGURED' : 'SERPAPI KEY (OPTIONAL)'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* API Key Modal */}
+      {/* Key Modal */}
       {showKeyModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-              <KeyRound className="w-5 h-5 text-emerald-400" />
-              <span>Live SerpApi Credentials</span>
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-lg max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-sm font-mono font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+              <KeyRound className="w-4 h-4 text-[#d29922]" />
+              <span>SerpApi Gateway Credentials</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-2">
-              Veritas AI comes pre-loaded with authentic multi-engine datasets for instant 1-click evaluation. If you want to run custom live searches during your test, enter your SerpApi API key below:
+            <p className="text-xs text-[#8b949e] mt-2 font-sans">
+              Pre-loaded with authentic multi-engine datasets for offline evaluation. Enter your live SerpApi API key if you want to execute live ad-hoc search queries:
             </p>
             <input
               type="password"
               placeholder="Paste SerpApi API key..."
               value={serpapiKey}
               onChange={(e) => setSerpapiKey(e.target.value)}
-              className="w-full mt-4 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+              className="w-full mt-4 bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#58a6ff] font-mono"
             />
             <div className="mt-5 flex justify-end space-x-2">
               <button
                 onClick={() => setShowKeyModal(false)}
-                className="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 transition-colors"
+                className="px-3 py-1.5 rounded text-xs font-mono bg-[#238636] hover:bg-[#2ea043] text-white font-bold transition-colors"
               >
-                Save & Close
+                SAVE CREDENTIALS
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-cyan-950/70 border border-cyan-800/60 text-cyan-400 text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-            <span>SerpApi India Hackathon 2026 • AI Agents Track</span>
+      {/* Main Terminal View */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+        {/* Terminal Title Bar */}
+        <div className="border border-[#21262d] bg-[#161b22] rounded p-4 mb-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-mono font-bold text-[#8b949e] uppercase tracking-wider mb-1">
+                SYSTEM FUNCTION: ADVERSARIAL DUE DILIGENCE
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Cross-Examining Commercial Claims vs. Legal Patents & Peer-Reviewed Science
+              </h1>
+            </div>
+            <div className="font-mono text-xs text-[#8b949e] bg-[#0d1117] p-2.5 rounded border border-[#21262d] shrink-0">
+              <div>TRACK: <span className="text-white font-bold">AI AGENTS</span></div>
+              <div>SERP ENGINES: <span className="text-[#3fb950] font-bold">4 SYNCHRONIZED</span></div>
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
-            Don't Trust Marketing Claims.{' '}
-            <span className="bg-gradient-to-r from-emerald-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
-              Audit the Patents & Science.
-            </span>
-          </h1>
-          <p className="text-sm sm:text-base text-slate-400 mt-3 leading-relaxed">
-            An autonomous forensic auditor for venture capital and R&D leaders. Reconciles corporate PR against legal patent disclosures (Google Patents), peer-reviewed physics (Google Scholar), and investigative press (Google News).
-          </p>
         </div>
 
-        {/* 1-Click Curated Scenarios */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>1-Click Curated Audit Scenarios (High-Stakes Deep Tech)</span>
+        {/* 1-Click Investigation Targets */}
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#8b949e] flex items-center space-x-1.5">
+              <span>TARGET INVESTIGATION PROFILES</span>
             </span>
-            <span className="text-xs text-slate-500">Instant judge evaluation</span>
+            <span className="font-mono text-[11px] text-[#8b949e]">SELECT BENCHMARK CASE</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
             {scenarios.map((sc) => {
               const isSelected = selectedScenario === sc.id;
               return (
@@ -303,27 +294,27 @@ export default function App() {
                     handleSelectScenario(sc);
                     handleRunAudit(sc.id);
                   }}
-                  className={`text-left p-3.5 rounded-xl border transition-all duration-200 relative overflow-hidden group ${
+                  className={`text-left p-3 rounded border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-slate-900 border-emerald-500/60 shadow-lg shadow-emerald-500/10'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+                      ? 'bg-[#1c2128] border-[#58a6ff]'
+                      : 'bg-[#161b22] border-[#21262d] hover:border-[#30363d]'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10">
-                      {sc.category}
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-mono text-[10px] uppercase font-bold text-[#58a6ff]">
+                      {sc.category.split('/')[0]}
                     </span>
-                    <span className="text-[11px] text-slate-400 group-hover:text-cyan-400 flex items-center space-x-1 transition-colors">
-                      <span>Audit</span>
-                      <ChevronRight className="w-3 h-3" />
+                    <span className="font-mono text-[10px] text-[#8b949e] flex items-center">
+                      <span>AUDIT</span>
+                      <ArrowUpRight className="w-3 h-3 ml-0.5" />
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-white line-clamp-1">{sc.company_or_tech}</h4>
-                  <p className="text-xs text-slate-400 line-clamp-2 mt-1">{sc.claimed_benefit}</p>
-                  <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="text-amber-300 font-mono">{sc.patents_count} Patents</span>
-                    <span className="text-blue-300 font-mono">{sc.scholar_count} Papers</span>
-                    <span className="text-rose-300 font-mono">{sc.news_count} News</span>
+                  <h4 className="text-xs font-bold text-white truncate">{sc.company_or_tech}</h4>
+                  <p className="text-[11px] text-[#8b949e] line-clamp-2 mt-1 leading-snug">{sc.claimed_benefit}</p>
+                  <div className="mt-2 pt-2 border-t border-[#21262d] flex items-center justify-between font-mono text-[10px] text-[#8b949e]">
+                    <span>{sc.patents_count} PATENTS</span>
+                    <span>{sc.scholar_count} PAPERS</span>
+                    <span>{sc.news_count} NEWS</span>
                   </div>
                 </button>
               );
@@ -331,11 +322,13 @@ export default function App() {
           </div>
         </div>
 
-        {/* Audit Search Bar Input */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 mb-8 shadow-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Audit Search Query Panel */}
+        <div className="bg-[#161b22] border border-[#21262d] rounded p-4 mb-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Company / Target Technology</label>
+              <label className="block font-mono text-[10px] font-bold text-[#8b949e] uppercase mb-1">
+                ENTITY / TECHNOLOGY UNDER AUDIT
+              </label>
               <input
                 type="text"
                 value={company}
@@ -343,12 +336,13 @@ export default function App() {
                   setCompany(e.target.value);
                   setSelectedScenario('');
                 }}
-                placeholder="e.g. QuantumScape, LK-99, Neuralink..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
+                className="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#58a6ff] font-mono"
               />
             </div>
             <div className="lg:col-span-2">
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Marketing / Public Performance Claim to Audit</label>
+              <label className="block font-mono text-[10px] font-bold text-[#8b949e] uppercase mb-1">
+                PUBLIC CLAIM OR MARKETING SPECIFICATION
+              </label>
               <div className="flex items-center space-x-2">
                 <input
                   type="text"
@@ -357,23 +351,22 @@ export default function App() {
                     setClaimedBenefit(e.target.value);
                     setSelectedScenario('');
                   }}
-                  placeholder="e.g. Eliminates dendrites, zero resistance at room temp..."
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  className="flex-1 bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#58a6ff]"
                 />
                 <button
                   onClick={() => handleRunAudit()}
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all flex items-center space-x-2 shrink-0 disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-2 rounded bg-[#238636] hover:bg-[#2ea043] text-white font-mono font-bold text-xs transition-colors flex items-center space-x-1.5 shrink-0 disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? (
                     <>
-                      <Activity className="w-4 h-4 animate-spin" />
-                      <span>Auditing...</span>
+                      <Activity className="w-3.5 h-3.5 animate-spin" />
+                      <span>QUERYING...</span>
                     </>
                   ) : (
                     <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Execute Audit</span>
+                      <Search className="w-3.5 h-3.5" />
+                      <span>RUN FORENSIC AUDIT</span>
                     </>
                   )}
                 </button>
@@ -382,33 +375,31 @@ export default function App() {
           </div>
         </div>
 
-        {/* Live Multi-Engine HUD & Telemetry */}
+        {/* Live SerpApi Multi-Engine Telemetry HUD */}
         {auditResult && (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-8">
-            <div className="flex items-center justify-between mb-3 text-xs text-slate-400">
-              <div className="flex items-center space-x-2">
-                <Terminal className="w-4 h-4 text-emerald-400" />
-                <span className="font-bold text-slate-200">Live SerpApi Multi-Engine Telemetry Feed</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  {auditResult.source_mode}
+          <div className="bg-[#161b22] border border-[#21262d] rounded p-3 mb-5">
+            <div className="flex items-center justify-between mb-2 font-mono text-[11px]">
+              <div className="flex items-center space-x-2 text-[#8b949e]">
+                <Terminal className="w-3.5 h-3.5 text-[#3fb950]" />
+                <span className="font-bold text-white">SERPAPI ENGINE TELEMETRY</span>
+                <span className="text-[#3fb950] bg-[#3fb950]/10 px-1.5 py-0.5 rounded text-[10px]">
+                  HTTP/2 200 OK
                 </span>
               </div>
-              <span className="font-mono text-emerald-400">All 4 Engines Synchronized</span>
+              <span className="text-[#8b949e]">MODE: {auditResult.source_mode}</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
               {auditResult.engine_telemetry?.map((tel, idx) => (
-                <div key={idx} className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 text-xs">
+                <div key={idx} className="bg-[#0d1117] border border-[#21262d] rounded p-2.5 font-mono text-xs">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-mono font-bold text-cyan-400">{tel.engine}</span>
-                    <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                      {tel.latency_ms}ms
-                    </span>
+                    <span className="font-bold text-[#58a6ff] text-[11px]">{tel.engine}</span>
+                    <span className="text-[10px] text-[#3fb950]">{tel.latency_ms}ms</span>
                   </div>
-                  <div className="text-slate-400 text-[11px] truncate">"{tel.query}"</div>
-                  <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-800/60 pt-1.5">
+                  <div className="text-[#8b949e] text-[10px] truncate">query: "{tel.query}"</div>
+                  <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#8b949e] border-t border-[#21262d] pt-1">
                     <span>{tel.category}</span>
-                    <span className="text-slate-300 font-semibold">{tel.records_count} records</span>
+                    <span className="text-white font-bold">{tel.records_count} records</span>
                   </div>
                 </div>
               ))}
@@ -416,190 +407,183 @@ export default function App() {
           </div>
         )}
 
-        {/* Results Dashboard */}
+        {/* Audit Results Dashboard */}
         {auditResult && !loading && (
-          <div className="space-y-6">
-            {/* Top Score Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Card 1: Hype vs Reality Index */}
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Forensic Reality Score
-                  </span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                    auditResult.summary.reality_index > 60 
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                  }`}>
-                    {auditResult.summary.reality_index}% Reality / {auditResult.summary.hype_index}% Hype
+          <div className="space-y-4">
+            {/* Top Key Quantitative Ratings */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Card 1: Reality vs Hype Ratio */}
+              <div className="bg-[#161b22] border border-[#21262d] rounded p-4">
+                <div className="flex items-center justify-between font-mono text-[10px] uppercase text-[#8b949e] mb-1">
+                  <span>REALITY VS HYPE RATIO</span>
+                  <span className="text-white font-bold">
+                    {auditResult.summary.reality_index}% REALITY / {auditResult.summary.hype_index}% HYPE
                   </span>
                 </div>
-                <div className="h-3 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800 mt-3">
+                <div className="h-2 bg-[#0d1117] rounded overflow-hidden flex border border-[#21262d] my-2">
                   <div 
                     style={{ width: `${auditResult.summary.reality_index}%` }} 
-                    className="bg-emerald-500 transition-all duration-1000"
+                    className="bg-[#238636]"
                   />
                   <div 
                     style={{ width: `${auditResult.summary.hype_index}%` }} 
-                    className="bg-rose-500 transition-all duration-1000"
+                    className="bg-[#da3633]"
                   />
                 </div>
-                <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+                <p className="text-xs text-[#c9d1d9] mt-2 leading-relaxed">
                   {auditResult.summary.verdict}
                 </p>
               </div>
 
-              {/* Card 2: IP Moat Rating */}
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Patent Moat Protection
-                  </span>
-                  <FileText className="w-4 h-4 text-amber-400" />
+              {/* Card 2: Legal Moat */}
+              <div className="bg-[#161b22] border border-[#21262d] rounded p-4">
+                <div className="flex items-center justify-between font-mono text-[10px] uppercase text-[#8b949e] mb-1">
+                  <span>PATENT MOAT DEFENSE</span>
+                  <FileText className="w-3.5 h-3.5 text-[#d29922]" />
                 </div>
-                <div className="text-lg font-extrabold text-white mt-1">
+                <div className="text-sm font-mono font-bold text-white mt-1">
                   {auditResult.summary.moat_rating}
                 </div>
-                <div className="text-xs text-slate-400 mt-2">
-                  Audited {auditResult.summary.total_patents_analyzed} Google Patents filings covering core claims.
-                </div>
+                <p className="text-xs text-[#8b949e] mt-2">
+                  Based on {auditResult.summary.total_patents_analyzed} Google Patents filings examined against prior art.
+                </p>
               </div>
 
-              {/* Card 3: Technology Readiness Level */}
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Maturity (NASA TRL Scale)
-                  </span>
-                  <Layers className="w-4 h-4 text-cyan-400" />
+              {/* Card 3: Maturity Level */}
+              <div className="bg-[#161b22] border border-[#21262d] rounded p-4">
+                <div className="flex items-center justify-between font-mono text-[10px] uppercase text-[#8b949e] mb-1">
+                  <span>MATURITY (NASA TRL SCALE)</span>
+                  <Layers className="w-3.5 h-3.5 text-[#58a6ff]" />
                 </div>
-                <div className="text-lg font-extrabold text-cyan-300 mt-1">
+                <div className="text-sm font-mono font-bold text-[#58a6ff] mt-1">
                   {auditResult.summary.technology_readiness_level}
                 </div>
-                <div className="text-xs text-slate-400 mt-2">
-                  Cross-checked against {auditResult.summary.total_papers_analyzed} Google Scholar peer reviews.
-                </div>
+                <p className="text-xs text-[#8b949e] mt-2">
+                  Cross-referenced with {auditResult.summary.total_papers_analyzed} Google Scholar peer-reviewed studies.
+                </p>
               </div>
             </div>
 
-            {/* Navigation Tabs & Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-between border-b border-slate-800 pb-3 gap-3">
-              <div className="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto">
+            {/* Navigation Tabs Bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between border-b border-[#21262d] pb-2 gap-2">
+              <div className="flex items-center space-x-1.5 overflow-x-auto w-full sm:w-auto font-mono text-xs">
                 <button
                   onClick={() => setActiveTab('contradictions')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
                     activeTab === 'contradictions'
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                      ? 'bg-[#21262d] text-white font-bold border border-[#30363d]'
+                      : 'text-[#8b949e] hover:text-white hover:bg-[#161b22]'
                   }`}
                 >
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Contradiction Matrix ({auditResult.contradictions.length})</span>
+                  CONTRADICTION MATRIX ({auditResult.contradictions.length})
                 </button>
 
                 <button
                   onClick={() => setActiveTab('radar')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
                     activeTab === 'radar'
-                      ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                      ? 'bg-[#21262d] text-white font-bold border border-[#30363d]'
+                      : 'text-[#8b949e] hover:text-white hover:bg-[#161b22]'
                   }`}
                 >
-                  <RadarIcon className="w-3.5 h-3.5" />
-                  <span>Forensic Risk Radar</span>
+                  QUANTITATIVE RADAR
                 </button>
 
                 <button
                   onClick={() => setActiveTab('timeline')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
                     activeTab === 'timeline'
-                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                      ? 'bg-[#21262d] text-white font-bold border border-[#30363d]'
+                      : 'text-[#8b949e] hover:text-white hover:bg-[#161b22]'
                   }`}
                 >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>Innovation Timeline ({auditResult.timeline.length})</span>
+                  INNOVATION TIMELINE ({auditResult.timeline.length})
                 </button>
 
                 <button
                   onClick={() => setActiveTab('evidence')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded transition-all cursor-pointer ${
                     activeTab === 'evidence'
-                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                      ? 'bg-[#21262d] text-white font-bold border border-[#30363d]'
+                      : 'text-[#8b949e] hover:text-white hover:bg-[#161b22]'
                   }`}
                 >
-                  <Search className="w-3.5 h-3.5" />
-                  <span>Evidence Explorer</span>
+                  EVIDENCE VAULT
                 </button>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-2 shrink-0">
+              {/* Action Toolbar */}
+              <div className="flex items-center space-x-2 shrink-0 font-mono text-xs">
                 <button
                   onClick={handleCopySummary}
-                  className="flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+                  className="flex items-center space-x-1 px-2.5 py-1.5 rounded bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] border border-[#30363d] cursor-pointer"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  {copied ? <Check className="w-3 h-3 text-[#3fb950]" /> : <Copy className="w-3 h-3 text-[#8b949e]" />}
+                  <span>{copied ? 'COPIED' : 'COPY'}</span>
                 </button>
 
                 <button
                   onClick={handleExportDossier}
-                  className="flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#238636] hover:bg-[#2ea043] text-white font-bold cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Export Investor Dossier (.MD)</span>
+                  <span>EXPORT DOSSIER (.MD)</span>
                 </button>
               </div>
             </div>
 
             {/* TAB 1: Contradiction Matrix */}
             {activeTab === 'contradictions' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {auditResult.contradictions.map((c, idx) => (
-                  <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-                    <div className="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2">
+                  <div key={idx} className="bg-[#161b22] border border-[#21262d] rounded p-4">
+                    <div className="flex items-center justify-between mb-3 border-b border-[#21262d] pb-2 font-mono text-xs">
                       <div className="flex items-center space-x-2">
-                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                        <h4 className="text-sm font-bold text-white">{c.claim_topic}</h4>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#da3633]"></span>
+                        <span className="font-bold text-white tracking-wide uppercase">
+                          ISSUE {idx + 1}: {c.claim_topic}
+                        </span>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                         c.severity === 'CRITICAL_MISMATCH'
-                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          ? 'bg-[#da3633]/20 text-[#f85149] border border-[#da3633]/30'
+                          : 'bg-[#d29922]/20 text-[#d29922] border border-[#d29922]/30'
                       }`}>
-                        {c.severity.replace('_', ' ')}
+                        {c.severity}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
-                      {/* PR Claim */}
-                      <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 flex items-center space-x-1 mb-1.5">
-                          <AlertTriangle className="w-3 h-3 text-amber-400" />
-                          <span>What PR / Company Claimed</span>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 text-xs">
+                      {/* Column A: Marketing Claim */}
+                      <div className="bg-[#0d1117] p-3 rounded border border-[#21262d]">
+                        <span className="font-mono text-[10px] font-bold text-[#8b949e] uppercase block mb-1">
+                          PUBLIC MARKETING STATEMENT
                         </span>
-                        <p className="text-slate-300 italic">"{c.marketing_statement}"</p>
+                        <p className="text-[#c9d1d9] italic leading-relaxed">
+                          "{c.marketing_statement}"
+                        </p>
                       </div>
 
-                      {/* Patent Reality */}
-                      <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                        <span className="text-[10px] font-bold uppercase text-amber-400 flex items-center space-x-1 mb-1.5">
-                          <FileText className="w-3 h-3 text-amber-400" />
-                          <span>Google Patents Legal Disclosure</span>
+                      {/* Column B: Patent Reality */}
+                      <div className="bg-[#0d1117] p-3 rounded border border-[#21262d]">
+                        <span className="font-mono text-[10px] font-bold text-[#d29922] uppercase flex items-center space-x-1 mb-1">
+                          <FileText className="w-3 h-3" />
+                          <span>PATENT SPECIFICATION DISCLOSURE</span>
                         </span>
-                        <p className="text-slate-300 leading-relaxed">{c.patent_disclosure}</p>
+                        <p className="text-[#c9d1d9] leading-relaxed">
+                          {c.patent_disclosure}
+                        </p>
                       </div>
 
-                      {/* Academic Evidence */}
-                      <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                        <span className="text-[10px] font-bold uppercase text-blue-400 flex items-center space-x-1 mb-1.5">
-                          <GraduationCap className="w-3 h-3 text-blue-400" />
-                          <span>Google Scholar Peer-Reviewed Science</span>
+                      {/* Column C: Scholar Reality */}
+                      <div className="bg-[#0d1117] p-3 rounded border border-[#21262d]">
+                        <span className="font-mono text-[10px] font-bold text-[#58a6ff] uppercase flex items-center space-x-1 mb-1">
+                          <GraduationCap className="w-3 h-3" />
+                          <span>PEER-REVIEWED SCIENTIFIC PROOF</span>
                         </span>
-                        <p className="text-slate-300 leading-relaxed">{c.academic_evidence}</p>
+                        <p className="text-[#c9d1d9] leading-relaxed">
+                          {c.academic_evidence}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -607,44 +591,42 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 2: Forensic Risk Radar & Bar Charts */}
+            {/* TAB 2: Quantitative Radar */}
             {activeTab === 'radar' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-[#161b22] border border-[#21262d] rounded p-5">
                 <div>
-                  <h4 className="text-sm font-bold text-white mb-2 flex items-center space-x-2">
-                    <RadarIcon className="w-4 h-4 text-purple-400" />
-                    <span>Multi-Dimensional Forensic Radar</span>
+                  <h4 className="font-mono text-xs font-bold text-white mb-1 uppercase tracking-wider">
+                    5-Pillar Diligence Radar
                   </h4>
-                  <p className="text-xs text-slate-400 mb-4">
-                    Quantified score across 5 audit pillars derived from SerpApi cross-engine disclosures.
+                  <p className="text-xs text-[#8b949e] mb-4">
+                    Quantified score across core engineering dimensions based on SerpApi cross-engine extraction.
                   </p>
-                  <div className="h-72 w-full">
+                  <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={auditResult.radar_metrics}>
-                        <PolarGrid stroke="#334155" />
-                        <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#475569" />
-                        <Radar name="Audit Score" dataKey="score" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.4} />
+                      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={auditResult.radar_metrics}>
+                        <PolarGrid stroke="#21262d" />
+                        <PolarAngleAxis dataKey="subject" stroke="#8b949e" tick={{ fontSize: 10, fontFamily: 'monospace' }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#30363d" />
+                        <Radar name="Audit Score" dataKey="score" stroke="#58a6ff" fill="#58a6ff" fillOpacity={0.25} />
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-bold text-white mb-2 flex items-center space-x-2">
-                    <BarChart3 className="w-4 h-4 text-cyan-400" />
-                    <span>Audit Breakdown Comparison</span>
+                  <h4 className="font-mono text-xs font-bold text-white mb-1 uppercase tracking-wider">
+                    Pillar Score Breakdown
                   </h4>
-                  <p className="text-xs text-slate-400 mb-4">
-                    Score rating relative to the maximum verifiable benchmark (100).
+                  <p className="text-xs text-[#8b949e] mb-4">
+                    Normalized index ratings relative to the 100-point institutional baseline.
                   </p>
-                  <div className="h-72 w-full">
+                  <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={auditResult.radar_metrics} layout="vertical" margin={{ left: 40, right: 20 }}>
-                        <XAxis type="number" domain={[0, 100]} stroke="#64748b" />
-                        <YAxis type="category" dataKey="subject" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff' }} />
-                        <Bar dataKey="score" fill="#10b981" radius={[0, 6, 6, 0]} />
+                      <BarChart data={auditResult.radar_metrics} layout="vertical" margin={{ left: 50, right: 20 }}>
+                        <XAxis type="number" domain={[0, 100]} stroke="#30363d" tick={{ fontSize: 10, fontFamily: 'monospace' }} />
+                        <YAxis type="category" dataKey="subject" stroke="#8b949e" tick={{ fontSize: 10, fontFamily: 'monospace' }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#161b22', borderColor: '#30363d', color: '#fff', fontSize: '11px', fontFamily: 'monospace' }} />
+                        <Bar dataKey="score" fill="#238636" radius={[0, 2, 2, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -654,25 +636,24 @@ export default function App() {
 
             {/* TAB 3: Innovation Timeline */}
             {activeTab === 'timeline' && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
-                <h4 className="text-sm font-bold text-white mb-6 flex items-center space-x-2">
-                  <Layers className="w-4 h-4 text-cyan-400" />
-                  <span>Chronological Tech Evolution (Paper ➔ Patent ➔ Market News)</span>
+              <div className="bg-[#161b22] border border-[#21262d] rounded p-5">
+                <h4 className="font-mono text-xs font-bold text-white mb-4 uppercase tracking-wider">
+                  Technology Evolution Trajectory (Academic Lab ➔ Patent Office ➔ Public Market)
                 </h4>
 
-                <div className="relative border-l-2 border-slate-800 ml-4 space-y-6">
+                <div className="relative border-l border-[#30363d] ml-3 space-y-4">
                   {auditResult.timeline.map((item, idx) => (
-                    <div key={idx} className="relative pl-6">
-                      <span className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-slate-950 border-2 border-cyan-400"></span>
-                      <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-cyan-400">{item.year} • {item.stage}</span>
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                    <div key={idx} className="relative pl-5">
+                      <span className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-[#58a6ff]"></span>
+                      <div className="bg-[#0d1117] border border-[#21262d] rounded p-3">
+                        <div className="flex items-center justify-between font-mono text-[10px] text-[#8b949e] mb-1">
+                          <span className="font-bold text-[#58a6ff]">{item.year} // {item.stage}</span>
+                          <span className="bg-[#21262d] text-[#c9d1d9] px-1.5 py-0.5 rounded">
                             {item.badge}
                           </span>
                         </div>
-                        <h5 className="text-sm font-semibold text-white mt-1">{item.title}</h5>
-                        <p className="text-xs text-slate-400 mt-1">{item.detail}</p>
+                        <h5 className="text-xs font-bold text-white mt-0.5">{item.title}</h5>
+                        <p className="text-[11px] text-[#8b949e] mt-1 font-mono">{item.detail}</p>
                       </div>
                     </div>
                   ))}
@@ -680,48 +661,47 @@ export default function App() {
               </div>
             )}
 
-            {/* TAB 4: Evidence Explorer */}
+            {/* TAB 4: Evidence Vault */}
             {activeTab === 'evidence' && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
-                <div className="flex items-center space-x-2 border-b border-slate-800 pb-3">
+              <div className="bg-[#161b22] border border-[#21262d] rounded p-4 space-y-3">
+                <div className="flex items-center space-x-2 border-b border-[#21262d] pb-2 font-mono text-xs">
                   <button
                     onClick={() => setEvidenceFilter('patents')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                      evidenceFilter === 'patents' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'text-slate-400 hover:text-white'
+                    className={`px-2.5 py-1 rounded cursor-pointer ${
+                      evidenceFilter === 'patents' ? 'bg-[#21262d] text-[#d29922] font-bold border border-[#30363d]' : 'text-[#8b949e] hover:text-white'
                     }`}
                   >
-                    Google Patents ({auditResult.raw_multi_engine_data.patents.length})
+                    GOOGLE PATENTS ({auditResult.raw_multi_engine_data.patents.length})
                   </button>
                   <button
                     onClick={() => setEvidenceFilter('scholar')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                      evidenceFilter === 'scholar' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'text-slate-400 hover:text-white'
+                    className={`px-2.5 py-1 rounded cursor-pointer ${
+                      evidenceFilter === 'scholar' ? 'bg-[#21262d] text-[#58a6ff] font-bold border border-[#30363d]' : 'text-[#8b949e] hover:text-white'
                     }`}
                   >
-                    Google Scholar ({auditResult.raw_multi_engine_data.scholar.length})
+                    GOOGLE SCHOLAR ({auditResult.raw_multi_engine_data.scholar.length})
                   </button>
                   <button
                     onClick={() => setEvidenceFilter('news')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                      evidenceFilter === 'news' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'text-slate-400 hover:text-white'
+                    className={`px-2.5 py-1 rounded cursor-pointer ${
+                      evidenceFilter === 'news' ? 'bg-[#21262d] text-[#f85149] font-bold border border-[#30363d]' : 'text-[#8b949e] hover:text-white'
                     }`}
                   >
-                    Google News ({auditResult.raw_multi_engine_data.news.length})
+                    GOOGLE NEWS ({auditResult.raw_multi_engine_data.news.length})
                   </button>
                 </div>
 
-                {/* Patents List */}
                 {evidenceFilter === 'patents' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {auditResult.raw_multi_engine_data.patents.map((p, i) => (
-                      <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <div className="flex items-center justify-between text-xs text-amber-400 mb-1">
-                          <span className="font-bold">{p.patent_id} • Status: {p.status}</span>
-                          <span>Filed: {p.filing_date}</span>
+                      <div key={i} className="bg-[#0d1117] p-3 rounded border border-[#21262d] text-xs">
+                        <div className="flex items-center justify-between font-mono text-[10px] text-[#d29922] mb-1">
+                          <span className="font-bold">{p.patent_id} // {p.status}</span>
+                          <span>FILED: {p.filing_date}</span>
                         </div>
-                        <h5 className="text-sm font-semibold text-white">{p.title}</h5>
-                        <p className="text-xs text-slate-400 mt-1">Assignee: {p.assignee}</p>
-                        <p className="text-xs text-slate-300 mt-2 bg-slate-900/60 p-2.5 rounded border border-slate-800/60 font-mono leading-relaxed">
+                        <h5 className="font-bold text-white text-xs">{p.title}</h5>
+                        <p className="text-[11px] text-[#8b949e] mt-0.5">Assignee: {p.assignee}</p>
+                        <p className="text-xs text-[#c9d1d9] mt-2 bg-[#161b22] p-2 rounded border border-[#21262d] font-mono leading-relaxed">
                           {p.snippet}
                         </p>
                       </div>
@@ -729,18 +709,17 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Scholar List */}
                 {evidenceFilter === 'scholar' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {auditResult.raw_multi_engine_data.scholar.map((s, i) => (
-                      <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <div className="flex items-center justify-between text-xs text-blue-400 mb-1">
-                          <span className="font-bold">{s.citations} Citations</span>
+                      <div key={i} className="bg-[#0d1117] p-3 rounded border border-[#21262d] text-xs">
+                        <div className="flex items-center justify-between font-mono text-[10px] text-[#58a6ff] mb-1">
+                          <span className="font-bold">{s.citations} CITATIONS VERIFIED</span>
                           <span>{s.publication}</span>
                         </div>
-                        <h5 className="text-sm font-semibold text-white">{s.title}</h5>
-                        <p className="text-xs text-slate-400 mt-1">{s.authors}</p>
-                        <p className="text-xs text-slate-300 mt-2 bg-slate-900/60 p-2.5 rounded border border-slate-800/60 leading-relaxed">
+                        <h5 className="font-bold text-white text-xs">{s.title}</h5>
+                        <p className="text-[11px] text-[#8b949e] mt-0.5">{s.authors}</p>
+                        <p className="text-xs text-[#c9d1d9] mt-2 bg-[#161b22] p-2 rounded border border-[#21262d] leading-relaxed">
                           {s.snippet}
                         </p>
                       </div>
@@ -748,17 +727,16 @@ export default function App() {
                   </div>
                 )}
 
-                {/* News List */}
                 {evidenceFilter === 'news' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {auditResult.raw_multi_engine_data.news.map((n, i) => (
-                      <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <div className="flex items-center justify-between text-xs text-rose-400 mb-1">
+                      <div key={i} className="bg-[#0d1117] p-3 rounded border border-[#21262d] text-xs">
+                        <div className="flex items-center justify-between font-mono text-[10px] text-[#f85149] mb-1">
                           <span className="font-bold">{n.source}</span>
                           <span>{n.date}</span>
                         </div>
-                        <h5 className="text-sm font-semibold text-white">{n.title}</h5>
-                        <p className="text-xs text-slate-300 mt-2 bg-slate-900/60 p-2.5 rounded border border-slate-800/60 leading-relaxed">
+                        <h5 className="font-bold text-white text-xs">{n.title}</h5>
+                        <p className="text-xs text-[#c9d1d9] mt-2 bg-[#161b22] p-2 rounded border border-[#21262d] leading-relaxed">
                           {n.snippet}
                         </p>
                       </div>
