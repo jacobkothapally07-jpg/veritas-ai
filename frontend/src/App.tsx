@@ -27,7 +27,9 @@ import {
   Zap,
   HelpCircle,
   TrendingDown,
-  ShieldAlert
+  ShieldAlert,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import {
   Radar,
@@ -80,6 +82,7 @@ export default function App() {
   const [evidenceFilter, setEvidenceFilter] = useState<'patents' | 'scholar' | 'news'>('patents');
   const [copied, setCopied] = useState<boolean>(false);
   const [copiedQuestionIdx, setCopiedQuestionIdx] = useState<number | null>(null);
+  const [showTelemetry, setShowTelemetry] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/api/scenarios')
@@ -300,27 +303,27 @@ export default function App() {
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#acf2e5]/50 border border-[#005f68]/20 text-[#005f68] text-xs font-bold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-[#209b47]" />
-            <span>SerpApi India Hackathon 2026 • AI Agents Track</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-[#005f68]" />
+            <span>Autonomous Deep-Tech Due Diligence & Patent Reality Engine</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#042126] leading-tight">
-            Don't Trust Public PR.{' '}
+            Cross-Checking Public Claims Against{' '}
             <span className="text-[#005f68]">
-              Audit the Patents & Science.
+              Patents & Peer-Reviewed Science.
             </span>
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-            Autonomous forensic diligence platform for investors and technical committees. Reconciles corporate marketing statements against legal patent claims (Google Patents), peer-reviewed physics (Google Scholar), and investigative media (Google News).
+          <p className="text-sm text-slate-600 mt-2.5 max-w-2xl mx-auto leading-relaxed">
+            Select a benchmark scenario or input any corporate claim to automatically reconcile marketing statements against Google Patents, Google Scholar, and Google News.
           </p>
         </div>
 
-        {/* 1-Click Investigation Profiles */}
+        {/* 1-Click Investigation Profiles - Clean Pill Grid */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#042126] flex items-center space-x-1.5">
-              <span>Investigation Benchmark Cases</span>
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Select an Investigation Scenario:
             </span>
-            <span className="text-xs font-medium text-slate-500">1-Click instant evaluation</span>
+            <span className="text-xs text-slate-400 font-medium">Click to instantly audit</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -333,28 +336,22 @@ export default function App() {
                     handleSelectScenario(sc);
                     handleRunAudit(sc.id);
                   }}
-                  className={`text-left p-4 rounded-xl border transition-all cursor-pointer ${
+                  className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-white border-[#005f68] shadow-md ring-2 ring-[#005f68]/10'
-                      : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
+                      ? 'bg-white border-[#005f68] shadow-md ring-2 ring-[#005f68]/15'
+                      : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-xs'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-[#acf2e5]/40 text-[#005f68] border border-[#005f68]/10">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-[#005f68]">
                       {sc.category.split('/')[0]}
                     </span>
-                    <span className="text-xs font-bold text-[#005f68] flex items-center space-x-0.5">
-                      <span>Audit</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </span>
+                    {isSelected && (
+                      <span className="w-2 h-2 rounded-full bg-[#209b47]"></span>
+                    )}
                   </div>
-                  <h4 className="text-sm font-bold text-[#042126] truncate">{sc.company_or_tech}</h4>
-                  <p className="text-xs text-slate-500 line-clamp-2 mt-1 leading-snug">{sc.claimed_benefit}</p>
-                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-medium text-slate-500">
-                    <span className="text-blue-700 font-semibold">{sc.patents_count} Patents</span>
-                    <span className="text-emerald-700 font-semibold">{sc.scholar_count} Papers</span>
-                    <span className="text-rose-700 font-semibold">{sc.news_count} News</span>
-                  </div>
+                  <h4 className="text-xs font-bold text-[#042126] truncate">{sc.company_or_tech}</h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{sc.claimed_benefit}</p>
                 </button>
               );
             })}
@@ -414,39 +411,48 @@ export default function App() {
           </div>
         </div>
 
-        {/* Live SerpApi Multi-Engine Telemetry Feed */}
+        {/* Collapsible SerpApi Multi-Engine Telemetry Drawer */}
         {auditResult && (
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 mb-6 shadow-sm">
-            <div className="flex items-center justify-between mb-3 text-xs">
+          <div className="bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 mb-6 shadow-xs transition-all">
+            <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
-                <Terminal className="w-4 h-4 text-[#209b47]" />
-                <span className="font-bold text-[#042126]">Live SerpApi Multi-Engine Telemetry Feed</span>
+                <Terminal className="w-3.5 h-3.5 text-[#209b47]" />
+                <span className="font-bold text-[#042126]">SerpApi Multi-Engine Gateway:</span>
+                <span className="text-[11px] text-slate-500 hidden sm:inline">
+                  Google Patents • Google Scholar • Google News • Google
+                </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                   HTTP/2 200 OK
                 </span>
               </div>
-              <span className="font-medium text-slate-500 text-[11px]">
-                Mode: {auditResult.source_mode}
-              </span>
+              <button
+                onClick={() => setShowTelemetry(!showTelemetry)}
+                className="flex items-center space-x-1 text-slate-500 hover:text-[#005f68] font-semibold text-[11px] cursor-pointer"
+              >
+                <span>{showTelemetry ? 'Hide Engine Logs' : 'View Query Telemetry'}</span>
+                {showTelemetry ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {auditResult.engine_telemetry?.map((tel, idx) => (
-                <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-[#005f68] font-mono text-[11px]">{tel.engine}</span>
-                    <span className="font-mono text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-bold">
-                      {tel.latency_ms}ms
-                    </span>
+            {showTelemetry && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mt-3 pt-3 border-t border-slate-100">
+                {auditResult.engine_telemetry?.map((tel, idx) => (
+                  <div key={idx} className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[#005f68] font-mono text-[11px]">{tel.engine}</span>
+                      <span className="font-mono text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-bold">
+                        {tel.latency_ms}ms
+                      </span>
+                    </div>
+                    <div className="text-slate-500 text-[10px] truncate">"{tel.query}"</div>
+                    <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-600 border-t border-slate-200/80 pt-1">
+                      <span>{tel.category}</span>
+                      <span className="font-bold text-[#042126]">{tel.records_count} records</span>
+                    </div>
                   </div>
-                  <div className="text-slate-500 text-[11px] truncate">"{tel.query}"</div>
-                  <div className="mt-2 flex items-center justify-between text-[11px] text-slate-600 border-t border-slate-200/80 pt-1.5">
-                    <span>{tel.category}</span>
-                    <span className="font-bold text-[#042126]">{tel.records_count} records</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -545,75 +551,79 @@ export default function App() {
               </div>
             </div>
 
-            {/* Navigation Tabs Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between border-b border-slate-200 pb-3 gap-3">
-              <div className="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto text-xs">
+            {/* Navigation Tabs Bar - Clean Matte Segmented Controller */}
+            <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-200/90 pb-3 gap-3">
+              <div className="flex items-center bg-slate-100/90 p-1 rounded-xl overflow-x-auto w-full md:w-auto text-xs border border-slate-200/60 shadow-xs">
                 <button
                   onClick={() => setActiveTab('contradictions')}
-                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                     activeTab === 'contradictions'
-                      ? 'bg-[#005f68] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                      ? 'bg-white text-[#005f68] shadow-xs'
+                      : 'text-slate-600 hover:text-[#042126]'
                   }`}
                 >
-                  Contradiction Matrix ({auditResult.contradictions.length})
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Contradictions ({auditResult.contradictions.length})</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('grill')}
-                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                     activeTab === 'grill'
                       ? 'bg-[#e11d48] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                      : 'text-slate-600 hover:text-[#042126]'
                   }`}
                 >
                   <Flame className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Grill the Founder ({auditResult.grill_questions?.length || 3})</span>
+                  <span>Grill Founder ({auditResult.grill_questions?.length || 3})</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('collision')}
-                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                     activeTab === 'collision'
-                      ? 'bg-[#005f68] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                      ? 'bg-white text-[#005f68] shadow-xs'
+                      : 'text-slate-600 hover:text-[#042126]'
                   }`}
                 >
-                  <Scale className="w-3.5 h-3.5" />
-                  <span>Prior-Art Collision Radar</span>
+                  <Scale className="w-3.5 h-3.5 text-[#005f68]" />
+                  <span>Prior-Art Radar</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('radar')}
-                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                     activeTab === 'radar'
-                      ? 'bg-[#005f68] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                      ? 'bg-white text-[#005f68] shadow-xs'
+                      : 'text-slate-600 hover:text-[#042126]'
                   }`}
                 >
-                  Forensic Risk Radar
+                  <BarChart3 className="w-3.5 h-3.5 text-[#209b47]" />
+                  <span>Risk Charts</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('timeline')}
-                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                     activeTab === 'timeline'
-                      ? 'bg-[#005f68] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                      ? 'bg-white text-[#005f68] shadow-xs'
+                      : 'text-slate-600 hover:text-[#042126]'
                   }`}
                 >
-                  Timeline ({auditResult.timeline.length})
+                  <Activity className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Timeline</span>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('evidence')}
-                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
                     activeTab === 'evidence'
-                      ? 'bg-[#005f68] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                      ? 'bg-white text-[#005f68] shadow-xs'
+                      : 'text-slate-600 hover:text-[#042126]'
                   }`}
                 >
-                  Evidence Vault
+                  <FileText className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Evidence Vault</span>
                 </button>
               </div>
 
