@@ -42,6 +42,30 @@ export interface EngineTelemetry {
   category: string;
 }
 
+export interface GrillQuestion {
+  question: string;
+  trap_rationale: string;
+  patent_citation: string;
+  expected_deflection: string;
+}
+
+export interface FinancialExposure {
+  market_cap_or_valuation: string;
+  capital_at_risk: string;
+  exposure_percentage: number;
+  valuation_trap_verdict: string;
+  downside_driver: string;
+}
+
+export interface PriorArtCollision {
+  primary_competitor: string;
+  overlapping_patent_id: string;
+  overlapping_title: string;
+  overlap_score: number;
+  litigation_threat_level: "HIGH" | "ELEVATED" | "MODERATE" | "LOW";
+  infringement_claim_focus: string;
+}
+
 export interface AuditData {
   query: string;
   company_or_tech: string;
@@ -64,6 +88,9 @@ export interface AuditData {
   engine_telemetry: EngineTelemetry[];
   contradictions: Contradiction[];
   timeline: TimelineItem[];
+  grill_questions: GrillQuestion[];
+  financial_exposure: FinancialExposure;
+  prior_art_collision: PriorArtCollision;
   raw_multi_engine_data: {
     patents: any[];
     scholar: any[];
@@ -472,6 +499,157 @@ export function generateAuditClientSide(
     { engine: "google", query: `${company} teardown reality`, status: 200, latency_ms: 255, records_count: sc.web.length, category: "Technical Consensus" }
   ];
 
+  // 1. Grill the Founder Questions
+  const grill_questions: GrillQuestion[] = [];
+  let financial_exposure: FinancialExposure;
+  let prior_art_collision: PriorArtCollision;
+
+  if (matchedId === "quantumscape") {
+    grill_questions.push(
+      {
+        question: "Your PR highlights 15-minute fast-charging with zero degradation, but patent US11652230B2 reveals you require continuous 3.4 atm mechanical compression frames. How much curb weight and thermal jacket cost does this clamp assembly add to an 80 kWh EV pack?",
+        trap_rationale: "Exposes that single-cell lab energy density does not translate to pack-level volumetric efficiency once required mechanical steel clamps are factored in.",
+        patent_citation: "US11652230B2 - Compressive Frame Assemblies, Claim 1 & 14",
+        expected_deflection: "Founder will claim 'all pouch cells need mild packaging,' but omit that 3.4 atmospheres is 7x standard automotive pouch retention pressure."
+      },
+      {
+        question: "In patent US20230387532A1, your team documents brittle ceramic membrane micro-fractures during high-speed roll-to-roll sintering. What is your verified single-line roll yield percentage today?",
+        trap_rationale: "Targeting manufacturing yield bottleneck—short sellers allege scrap rates exceed 30%, delaying OEM commercial deliveries.",
+        patent_citation: "US20230387532A1 - Roll-to-roll separator thermal conditioning",
+        expected_deflection: "Founder will reference 'proprietary Cobra production equipment' without disclosing the actual line scrap metric."
+      },
+      {
+        question: "Stanford/MIT research (J. Electrochem. Soc. 168) proves dendrites still propagate across garnet grain boundaries above 4 mA/cm². At what temperature and C-rate does dendrite short-circuiting begin in your QSE-5 multi-layer stack?",
+        trap_rationale: "Forces admission on boundary-condition limitations where solid ceramic electrolytes lose dendrite resistance.",
+        patent_citation: "J. Electrochem. Soc. Vol 168 (DOI: 10.1149/1945)",
+        expected_deflection: "Founder will emphasize 'zero dendrites observed at low current densities in single layer cells' rather than 4C multi-layer discharge."
+      }
+    );
+    financial_exposure = {
+      market_cap_or_valuation: "$3.45 Billion Market Cap",
+      capital_at_risk: "$1.85 Billion Downside Exposure",
+      exposure_percentage: 54,
+      valuation_trap_verdict: "HIGH VALUATION RE-RATING RISK",
+      downside_driver: "If external compression frame weight offsets cell gravimetric advantages, OEM premium pricing collapses to commodity LFP multiples."
+    };
+    prior_art_collision = {
+      primary_competitor: "Toyota Motor Corp (Global Solid-State Consortium)",
+      overlapping_patent_id: "US10985408B2",
+      overlapping_title: "Sulfide-based solid electrolyte with protective polymer buffer interface",
+      overlap_score: 74,
+      litigation_threat_level: "HIGH",
+      infringement_claim_focus: "Independent claims 1-8 cover pressurized pouch assemblies using garnet-doped composite barriers; risk of cross-licensing royalty drag."
+    };
+  } else if (matchedId === "lk99") {
+    grill_questions.push(
+      {
+        question: "Your patent KR1020230114092A was rejected by KIPO for lack of industrial reproducibility. Given that Max Planck proved the 104°C resistance cliff is caused by Cu2S impurity transitions, can you produce a pure phase Pb10-xCux(PO4)6O sample that levitates?",
+        trap_rationale: "Confronts the fundamental physical artifact: copper sulfide ferromagnetism versus genuine superconductivity.",
+        patent_citation: "KR1020230114092A & Nature 620, 716–717",
+        expected_deflection: "Claim that 'independent labs didn't bake the ceramic correctly in the vacuum furnace tube.'"
+      },
+      {
+        question: "Why did your team rely on half-levitation videos rather than publishing raw SQUID magnetic susceptibility hysteresis curves showing Meissner flux expulsion below 10 Gauss?",
+        trap_rationale: "Diamagnetic torque can tilt a particle without zero electrical resistance.",
+        patent_citation: "Physical Review Materials 7, 104803",
+        expected_deflection: "Invoking 'commercial trade secrets' to avoid releasing raw magnetometry data."
+      },
+      {
+        question: "Given eight national Korean institutes failed to replicate zero resistance, under what legal mechanism do you intend to appeal the patent rejection?",
+        trap_rationale: "Shows patent office has officially denied protection, eliminating any enterprise licensing valuation.",
+        patent_citation: "KIPO Office Action Rejection Notice 2023",
+        expected_deflection: "Will claim the updated PCPOSOS formulation solves the purity issue."
+      }
+    );
+    financial_exposure = {
+      market_cap_or_valuation: "$120M Speculative Market Bubble",
+      capital_at_risk: "$114M Capital Destruction Risk",
+      exposure_percentage: 95,
+      valuation_trap_verdict: "NEAR-TOTAL COLLAPSE / ASYMMETRIC LOSS",
+      downside_driver: "No defensible intellectual property granted. Zero commercial adoption possible following universal academic peer-review refutation."
+    };
+    prior_art_collision = {
+      primary_competitor: "Oak Ridge National Laboratory & Max Planck",
+      overlapping_patent_id: "US8828911B2",
+      overlapping_title: "High-Tc Cuprate and Pnictide Superconductors and Magnetic Pinning Systems",
+      overlap_score: 88,
+      litigation_threat_level: "LOW",
+      infringement_claim_focus: "No collision because claims are non-functional; patent offices across US, EU, and Korea have disqualified room-temp claims."
+    };
+  } else if (matchedId === "neuralink") {
+    grill_questions.push(
+      {
+        question: "Following the public admission that 85% of polymer threads retracted from your first patient's brain due to cranial micromotion, what physical modification in patent US11717364B2 prevents this in cohort 2?",
+        trap_rationale: "Software filtering can only compensate for signal degradation temporarily; mechanical anchoring in living pulsating cortex is the core physics limit.",
+        patent_citation: "US11717364B2 - Robotic probe insertion cartridge",
+        expected_deflection: "Attributing recovery to improved digital peak-detection filters rather than physical mechanical anchoring."
+      },
+      {
+        question: "How do your ultra-thin threads overcome the 12-month glial scar encapsulation documented in Nature Biomedical Engineering (Vol 4, 381)?",
+        trap_rationale: "Foreign body response typically isolates microelectrodes within 18 months, reducing signal-to-noise ratio.",
+        patent_citation: "Nature Biomedical Eng (DOI: 10.1038/s41551-020)",
+        expected_deflection: "Quoting animal longevity data without disclosing histological scar density."
+      },
+      {
+        question: "Patent US11553860B2 claims an inductive skull recharger transmitting at 2.4 GHz. What is the peak temperature rise in surrounding bone tissue during 2-hour charging cycles?",
+        trap_rationale: "FDA thermal limits strictly cap human intracranial implant warming to under 1.0°C to prevent tissue necrosis.",
+        patent_citation: "US11553860B2 - Inductive telemetric recharge",
+        expected_deflection: "Claiming inductive coil is tuned for rapid low-power top-offs."
+      }
+    );
+    financial_exposure = {
+      market_cap_or_valuation: "$5.20 Billion Private Round",
+      capital_at_risk: "$1.40 Billion Regulatory Timeline Exposure",
+      exposure_percentage: 27,
+      valuation_trap_verdict: "TIMELINE-EXPANSION DOWNGRADE RISK",
+      downside_driver: "Pivoting from consumer 'Telepathy' to strict FDA Class III medical device clinical trials stretches monetization horizon from 2026 to 2031."
+    };
+    prior_art_collision = {
+      primary_competitor: "Synchron Medical / Blackrock Neurotech",
+      overlapping_patent_id: "US10688297B2",
+      overlapping_title: "Endovascular stent-electrode array for neural recording without craniotomy",
+      overlap_score: 62,
+      litigation_threat_level: "ELEVATED",
+      infringement_claim_focus: "Synchron holds broad foundational IP on motor cortex motor-intent decoding methods, creating IP friction for commercial BCI decoders."
+    };
+  } else {
+    grill_questions.push(
+      {
+        question: "Patent US20240091942A1 discloses thermal throttling in cycloidal actuator joints during continuous load cycles exceeding 45 minutes. How does Figure 02 sustain an 8-hour factory shift without human swap-out?",
+        trap_rationale: "Industrial assembly requires 99.7% continuous uptime; duty-cycle limitations break humanoid ROI calculations.",
+        patent_citation: "US20240091942A1 - Cycloidal actuator assembly",
+        expected_deflection: "Founder will emphasize 'peak sprint demo torque' rather than continuous thermal dissipation."
+      },
+      {
+        question: "Given UC Berkeley/DeepMind research demonstrating visuomotor policy failure under 15% lighting or fixture variation, what is your true autonomous intervention rate at BMW's Spartanburg facility?",
+        trap_rationale: "Separates scripted marketing demos from actual unsupervised Mean Time Between Interventions (MTBI).",
+        patent_citation: "IEEE Trans Robotics Vol 40, 1120–1135",
+        expected_deflection: "Will cite total operating hours rather than interventions per thousand cycle insertions."
+      },
+      {
+        question: "Your patent covers custom cycloidal gearboxes, but Harmonic Drive and Nabtesco hold 400+ foundational patents. Have you obtained an independent Freedom-to-Operate (FTO) opinion for the Figure 02 joint assembly?",
+        trap_rationale: "High risk of patent trolling and mechanical infringement from established robotics suppliers.",
+        patent_citation: "Figure Cycloidal Actuator vs Harmonic Drive IP Portfolio",
+        expected_deflection: "Will assert their integrated torque sensor design circumvents classic strain-wave gear patents."
+      }
+    );
+    financial_exposure = {
+      market_cap_or_valuation: "$2.60 Billion Valuation",
+      capital_at_risk: "$1.15 Billion CapEx & Capex Trap",
+      exposure_percentage: 44,
+      valuation_trap_verdict: "TELEOPERATION UNIT-ECONOMICS TRAP",
+      downside_driver: "If ratio of remote teleoperators to deployed units remains >1:4, labor cost savings are inverted, rendering unit economics unprofitable."
+    };
+    prior_art_collision = {
+      primary_competitor: "Tesla Optimus / Boston Dynamics (Hyundai)",
+      overlapping_patent_id: "US11806871B2",
+      overlapping_title: "Modular rotary electro-mechanical actuator with integrated strain wave gearing",
+      overlap_score: 71,
+      litigation_threat_level: "HIGH",
+      infringement_claim_focus: "Tesla's broad claims on compact modular actuator tendon routing and integrated torque sensing in humanoid limbs."
+    };
+  }
+
   return {
     query,
     company_or_tech: company,
@@ -494,6 +672,9 @@ export function generateAuditClientSide(
     engine_telemetry,
     contradictions,
     timeline,
+    grill_questions,
+    financial_exposure,
+    prior_art_collision,
     raw_multi_engine_data: {
       patents: sc.patents,
       scholar: sc.scholar,

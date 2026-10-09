@@ -20,7 +20,14 @@ import {
   ChevronRight,
   Building2,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Flame,
+  DollarSign,
+  Scale,
+  Zap,
+  HelpCircle,
+  TrendingDown,
+  ShieldAlert
 } from 'lucide-react';
 import {
   Radar,
@@ -43,7 +50,10 @@ import {
   RadarMetric,
   EngineTelemetry,
   Contradiction,
-  TimelineItem
+  TimelineItem,
+  GrillQuestion,
+  FinancialExposure,
+  PriorArtCollision
 } from './auditEngine';
 
 export default function App() {
@@ -66,9 +76,10 @@ export default function App() {
       'quantumscape'
     )
   );
-  const [activeTab, setActiveTab] = useState<'contradictions' | 'radar' | 'timeline' | 'evidence'>('contradictions');
+  const [activeTab, setActiveTab] = useState<'contradictions' | 'grill' | 'collision' | 'radar' | 'timeline' | 'evidence'>('contradictions');
   const [evidenceFilter, setEvidenceFilter] = useState<'patents' | 'scholar' | 'news'>('patents');
   const [copied, setCopied] = useState<boolean>(false);
+  const [copiedQuestionIdx, setCopiedQuestionIdx] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('/api/scenarios')
@@ -148,6 +159,34 @@ export default function App() {
         report += `* **Google Patents Specification Disclosure:** ${c.patent_disclosure}\n`;
         report += `* **Google Scholar Peer-Reviewed Science:** ${c.academic_evidence}\n\n`;
       });
+
+      if (d.financial_exposure) {
+        report += `---\n\n## 3. VALUATION TRAP & CAPITAL AT RISK MODEL\n`;
+        report += `* **Market Cap / Enterprise Valuation:** ${d.financial_exposure.market_cap_or_valuation}\n`;
+        report += `* **Capital at Risk:** ${d.financial_exposure.capital_at_risk} (${d.financial_exposure.exposure_percentage}% of valuation)\n`;
+        report += `* **Downside Verdict:** ${d.financial_exposure.valuation_trap_verdict}\n`;
+        report += `* **Key Exposure Driver:** ${d.financial_exposure.downside_driver}\n\n`;
+      }
+
+      if (d.prior_art_collision) {
+        report += `---\n\n## 4. PRIOR-ART COLLISION & LITIGATION THREAT RADAR\n`;
+        report += `* **Primary IP Adversary:** ${d.prior_art_collision.primary_competitor}\n`;
+        report += `* **Overlapping Patent:** ${d.prior_art_collision.overlapping_patent_id} — ${d.prior_art_collision.overlapping_title}\n`;
+        report += `* **Claim Overlap Score:** ${d.prior_art_collision.overlap_score}/100 [THREAT: ${d.prior_art_collision.litigation_threat_level}]\n`;
+        report += `* **Infringement Focus:** ${d.prior_art_collision.infringement_claim_focus}\n\n`;
+      }
+
+      if (d.grill_questions && d.grill_questions.length > 0) {
+        report += `---\n\n## 5. "GRILL THE FOUNDER" — ADVERSARIAL RED-TEAM QUESTIONS\n`;
+        d.grill_questions.forEach((g, idx) => {
+          report += `### QUESTION ${idx + 1}: Interrogation Prompt\n`;
+          report += `> "${g.question}"\n\n`;
+          report += `* **Trap Rationale:** ${g.trap_rationale}\n`;
+          report += `* **Patent Citation:** ${g.patent_citation}\n`;
+          report += `* **Anticipated Deflection:** ${g.expected_deflection}\n\n`;
+        });
+      }
+
       return report;
     };
 
@@ -414,8 +453,8 @@ export default function App() {
         {/* Audit Results Dashboard */}
         {auditResult && !loading && (
           <div className="space-y-6">
-            {/* Top Score Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Top Score Cards + Valuation Trap Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Card 1: Reality vs Hype */}
               <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
                 <div className="flex items-center justify-between mb-1.5">
@@ -456,9 +495,18 @@ export default function App() {
                 <div className="text-base font-bold text-[#042126] mt-1">
                   {auditResult.summary.moat_rating}
                 </div>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  Based on {auditResult.summary.total_patents_analyzed} Google Patents filings examined against prior art.
-                </p>
+                <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                  <span>{auditResult.summary.total_patents_analyzed} Google Patents</span>
+                  {auditResult.prior_art_collision && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      auditResult.prior_art_collision.litigation_threat_level === 'HIGH'
+                        ? 'bg-rose-100 text-rose-800'
+                        : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {auditResult.prior_art_collision.litigation_threat_level} IP Collision
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Card 3: Technology Readiness Level */}
@@ -476,6 +524,25 @@ export default function App() {
                   Cross-checked against {auditResult.summary.total_papers_analyzed} Google Scholar peer-reviewed studies.
                 </p>
               </div>
+
+              {/* Card 4: Capital at Risk / Valuation Trap */}
+              <div className="bg-gradient-to-br from-rose-50/60 to-white border border-rose-200/80 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-rose-900 flex items-center space-x-1">
+                    <TrendingDown className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Valuation Exposure</span>
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                    {auditResult.financial_exposure?.exposure_percentage || 50}% Risk
+                  </span>
+                </div>
+                <div className="text-base font-black text-rose-950 mt-1">
+                  {auditResult.financial_exposure?.capital_at_risk || "$1.85B at Risk"}
+                </div>
+                <p className="text-[11px] text-rose-800/90 mt-1.5 leading-snug line-clamp-2">
+                  {auditResult.financial_exposure?.valuation_trap_verdict || "Valuation markdown risk if physics fails commercial parity."}
+                </p>
+              </div>
             </div>
 
             {/* Navigation Tabs Bar */}
@@ -490,6 +557,30 @@ export default function App() {
                   }`}
                 >
                   Contradiction Matrix ({auditResult.contradictions.length})
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('grill')}
+                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
+                    activeTab === 'grill'
+                      ? 'bg-[#e11d48] text-white shadow-xs'
+                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                  }`}
+                >
+                  <Flame className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Grill the Founder ({auditResult.grill_questions?.length || 3})</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('collision')}
+                  className={`px-3.5 py-2 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
+                    activeTab === 'collision'
+                      ? 'bg-[#005f68] text-white shadow-xs'
+                      : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
+                  }`}
+                >
+                  <Scale className="w-3.5 h-3.5" />
+                  <span>Prior-Art Collision Radar</span>
                 </button>
 
                 <button
@@ -511,7 +602,7 @@ export default function App() {
                       : 'bg-white text-slate-600 hover:text-[#042126] border border-slate-200'
                   }`}
                 >
-                  Innovation Timeline ({auditResult.timeline.length})
+                  Timeline ({auditResult.timeline.length})
                 </button>
 
                 <button
@@ -603,6 +694,177 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* TAB: "Grill the Founder" — Adversarial Red-Team Questions */}
+            {activeTab === 'grill' && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-rose-900 to-[#042126] text-white p-5 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <Flame className="w-5 h-5 text-amber-400" />
+                      <h4 className="text-sm font-bold tracking-tight">
+                        Adversarial Red-Team Interrogation Suite
+                      </h4>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 border border-rose-400/30">
+                        Investor War Room Ready
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                      Generated questions weaponize technical patent disclosures and academic laws of physics to puncture founder deflections during IC meetings.
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-[11px] font-mono text-emerald-400 font-bold block">
+                      Target: {auditResult.company_or_tech}
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      3 High-Yield Interrogation Traps
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {auditResult.grill_questions?.map((q, idx) => (
+                    <div key={idx} className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm hover:border-rose-300 transition-all">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="w-6 h-6 rounded-lg bg-rose-100 text-rose-800 font-black text-xs flex items-center justify-center shrink-0">
+                            #{idx + 1}
+                          </span>
+                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                            Direct Interrogation Prompt
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(q.question);
+                            setCopiedQuestionIdx(idx);
+                            setTimeout(() => setCopiedQuestionIdx(null), 2000);
+                          }}
+                          className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer transition-colors"
+                        >
+                          {copiedQuestionIdx === idx ? (
+                            <>
+                              <Check className="w-3 h-3 text-[#209b47]" />
+                              <span>Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3 text-slate-500" />
+                              <span>Copy Question</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-medium text-[#042126] leading-relaxed mb-3.5">
+                        <p className="font-semibold text-slate-900">"{q.question}"</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+                        <div className="bg-rose-50/60 border border-rose-200/70 rounded-lg p-3">
+                          <span className="font-bold text-rose-900 uppercase block mb-1">
+                            🎯 The Trap & Dilemma
+                          </span>
+                          <p className="text-rose-950 leading-relaxed">{q.trap_rationale}</p>
+                        </div>
+
+                        <div className="bg-blue-50/60 border border-blue-200/70 rounded-lg p-3">
+                          <span className="font-bold text-blue-900 uppercase block mb-1">
+                            📜 Legal IP Grounding
+                          </span>
+                          <p className="text-blue-950 font-mono text-[10px] leading-relaxed">{q.patent_citation}</p>
+                        </div>
+
+                        <div className="bg-amber-50/60 border border-amber-200/70 rounded-lg p-3">
+                          <span className="font-bold text-amber-900 uppercase block mb-1">
+                            🛡️ Anticipated Deflection
+                          </span>
+                          <p className="text-amber-950 leading-relaxed">{q.expected_deflection}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: Prior-Art Collision & Lawsuit Threat Radar */}
+            {activeTab === 'collision' && auditResult.prior_art_collision && (
+              <div className="space-y-4">
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Scale className="w-5 h-5 text-[#005f68]" />
+                        <h4 className="text-sm font-bold text-[#042126]">
+                          Prior-Art Collision & Litigation Threat Assessment
+                        </h4>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Detects competing patent portfolios that threaten Freedom-to-Operate (FTO) or commercial deployment.
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold self-start sm:self-auto ${
+                      auditResult.prior_art_collision.litigation_threat_level === 'HIGH'
+                        ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                        : 'bg-amber-100 text-amber-800 border border-amber-300'
+                    }`}>
+                      {auditResult.prior_art_collision.litigation_threat_level} LITIGATION RISK
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                      <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">
+                        Primary IP Rival / Portfolio Holder
+                      </span>
+                      <div className="text-sm font-bold text-[#042126]">
+                        {auditResult.prior_art_collision.primary_competitor}
+                      </div>
+                      <div className="mt-3 text-xs text-slate-600">
+                        <span className="font-semibold text-slate-700">Overlapping Patent:</span>{' '}
+                        <span className="font-mono text-[#005f68] font-bold">{auditResult.prior_art_collision.overlapping_patent_id}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 italic">
+                        "{auditResult.prior_art_collision.overlapping_title}"
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-bold uppercase text-slate-400">
+                            Claim Overlap Index
+                          </span>
+                          <span className="text-xs font-black text-[#005f68]">
+                            {auditResult.prior_art_collision.overlap_score} / 100
+                          </span>
+                        </div>
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-1">
+                          <div 
+                            style={{ width: `${auditResult.prior_art_collision.overlap_score}%` }} 
+                            className="bg-[#005f68] h-full"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-600">
+                        <span className="font-bold text-[#042126]">Risk Assessment:</span> Higher overlap requires license royalties or costly litigation redesigns.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs">
+                    <span className="font-bold text-amber-900 block mb-1 uppercase text-[10px]">
+                      ⚠️ Infringement & Royalty Threat Analysis
+                    </span>
+                    <p className="text-amber-950 leading-relaxed">
+                      {auditResult.prior_art_collision.infringement_claim_focus}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
