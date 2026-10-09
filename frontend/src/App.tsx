@@ -35,82 +35,19 @@ import {
   Tooltip
 } from 'recharts';
 
-interface Scenario {
-  id: string;
-  title: string;
-  category: string;
-  company_or_tech: string;
-  claimed_benefit: string;
-  patents_count: number;
-  scholar_count: number;
-  news_count: number;
-}
-
-interface Contradiction {
-  claim_topic: string;
-  marketing_statement: string;
-  patent_disclosure: string;
-  academic_evidence: string;
-  severity: string;
-}
-
-interface TimelineItem {
-  year: string;
-  stage: string;
-  engine: string;
-  title: string;
-  detail: string;
-  badge: string;
-  link: string;
-}
-
-interface RadarMetric {
-  subject: string;
-  score: number;
-  fullMark: number;
-}
-
-interface EngineTelemetry {
-  engine: string;
-  query: string;
-  status: number;
-  latency_ms: number;
-  records_count: number;
-  category: string;
-}
-
-interface AuditData {
-  query: string;
-  company_or_tech: string;
-  claimed_benefit: string;
-  source_mode: string;
-  summary: {
-    hype_index: number;
-    reality_index: number;
-    verdict: string;
-    moat_score: number;
-    moat_rating: string;
-    science_score: number;
-    technology_readiness_level: string;
-    total_patents_analyzed: number;
-    total_papers_analyzed: number;
-    total_news_analyzed: number;
-    total_web_analyzed: number;
-  };
-  radar_metrics: RadarMetric[];
-  engine_telemetry: EngineTelemetry[];
-  contradictions: Contradiction[];
-  timeline: TimelineItem[];
-  raw_multi_engine_data: {
-    patents: any[];
-    scholar: any[];
-    news: any[];
-    web: any[];
-  };
-}
+import { 
+  INITIAL_SCENARIOS, 
+  generateAuditClientSide,
+  Scenario,
+  AuditData,
+  RadarMetric,
+  EngineTelemetry,
+  Contradiction,
+  TimelineItem
+} from './auditEngine';
 
 export default function App() {
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [scenarios, setScenarios] = useState<Scenario[]>(INITIAL_SCENARIOS);
   const [selectedScenario, setSelectedScenario] = useState<string>('quantumscape');
   const [query, setQuery] = useState<string>('QuantumScape Solid-State Battery Fast Charge');
   const [company, setCompany] = useState<string>('QuantumScape Corp');
@@ -121,21 +58,30 @@ export default function App() {
   const [serpapiKey, setSerpapiKey] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [auditResult, setAuditResult] = useState<AuditData | null>(null);
+  const [auditResult, setAuditResult] = useState<AuditData | null>(() => 
+    generateAuditClientSide(
+      'QuantumScape Solid-State Battery Fast Charge',
+      'QuantumScape Corp',
+      'Proprietary ceramic separator eliminates dendrites, enabling 15-minute 80% charge with zero thermal runaway.',
+      'quantumscape'
+    )
+  );
   const [activeTab, setActiveTab] = useState<'contradictions' | 'radar' | 'timeline' | 'evidence'>('contradictions');
   const [evidenceFilter, setEvidenceFilter] = useState<'patents' | 'scholar' | 'news'>('patents');
   const [copied, setCopied] = useState<boolean>(false);
 
-  // Load scenarios on mount
+  // Load scenarios on mount (fallback to INITIAL_SCENARIOS)
   useEffect(() => {
     fetch('/api/scenarios')
       .then(res => res.json())
       .then(data => {
-        setScenarios(data);
-        // Automatically run the first scenario so judges immediately see the dashboard populated!
-        handleRunAudit('quantumscape');
+        if (Array.isArray(data) && data.length > 0) {
+          setScenarios(data);
+        }
       })
-      .catch(err => console.error('Failed to load scenarios:', err));
+      .catch(() => {
+        // Keep INITIAL_SCENARIOS
+      });
   }, []);
 
   const handleSelectScenario = (sc: Scenario) => {
@@ -150,6 +96,7 @@ export default function App() {
 
     const targetScenarioId = scenarioIdToRun !== undefined ? scenarioIdToRun : selectedScenario;
 
+    let data: AuditData | null = null;
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (serpapiKey.trim()) {
@@ -167,34 +114,67 @@ export default function App() {
         })
       });
 
-      if (!res.ok) throw new Error('Audit request failed');
-      const data = await res.json();
-      setAuditResult(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+      if (res.ok) {
+        data = await res.json();
+      }
+    } catch {
+      // Backend not reached or proxy error; gracefully fall back
     }
+
+    if (!data) {
+      data = generateAuditClientSide(
+        query.trim() || 'QuantumScape Battery',
+        company.trim(),
+        claimedBenefit.trim(),
+        targetScenarioId || undefined
+      );
+    }
+
+    setAuditResult(data);
+    setLoading(false);
   };
 
   const handleExportDossier = () => {
     if (!auditResult) return;
+
+    const generateMarkdown = (d: AuditData) => {
+      let report = `# 🛡️ VERITAS AI — INSTITUTIONAL TECH DUE-DILIGENCE DOSSIER\n`;
+      report += `**Target Technology / Company:** ${d.company_or_tech}\n`;
+      report += `**Claim Audited:** "${d.claimed_benefit}"\n\n`;
+      report += `---\n\n## 📊 EXECUTIVE VERDICT & RISK METRICS\n`;
+      report += `* **Reality Index:** ${d.summary.reality_index}%\n`;
+      report += `* **Hype Index:** ${d.summary.hype_index}%\n`;
+      report += `* **Verdict:** ${d.summary.verdict}\n`;
+      report += `* **Patent Moat:** ${d.summary.moat_rating}\n`;
+      report += `* **Technology Readiness Level:** ${d.summary.technology_readiness_level}\n\n`;
+      report += `---\n\n## ⚠️ CONTRADICTION & DISCREPANCY MATRIX\n`;
+      d.contradictions.forEach(c => {
+        report += `### ${c.claim_topic} [${c.severity}]\n`;
+        report += `* **Marketing PR Claim:** "${c.marketing_statement}"\n`;
+        report += `* **Google Patents Legal Reality:** ${c.patent_disclosure}\n`;
+        report += `* **Google Scholar Scientific Evidence:** ${c.academic_evidence}\n\n`;
+      });
+      return report;
+    };
+
+    const downloadFile = (markdownText: string) => {
+      const blob = new Blob([markdownText], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `VERITAS_DOSSIER_${(auditResult.company_or_tech || 'TECH').replace(/\\s+/g, '_').toUpperCase()}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
     fetch('/api/export-dossier', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(auditResult)
     })
       .then(res => res.json())
-      .then(data => {
-        const blob = new Blob([data.markdown_report], { type: 'text/markdown;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `VERITAS_DOSSIER_${(auditResult.company_or_tech || 'TECH').replace(/\s+/g, '_').toUpperCase()}.md`;
-        a.click();
-        URL.revokeObjectURL(url);
-      })
-      .catch(err => alert('Export failed: ' + err));
+      .then(d => downloadFile(d.markdown_report))
+      .catch(() => downloadFile(generateMarkdown(auditResult)));
   };
 
   const handleCopySummary = () => {
