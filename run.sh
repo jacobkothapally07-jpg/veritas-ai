@@ -16,13 +16,13 @@ if [ ! -d "backend/venv" ]; then
     backend/venv/bin/pip install -r backend/requirements.txt
 fi
 
-# Clean up any lingering processes on ports 8000 and 5173
-lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+# Clean up any lingering processes on ports 8088 and 5173
+lsof -ti:8088 | xargs kill -9 2>/dev/null || true
 lsof -ti:5173 | xargs kill -9 2>/dev/null || true
 
 echo ""
-echo "🚀 Starting FastAPI Backend on http://localhost:8000..."
-backend/venv/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir backend &
+echo "🚀 Starting FastAPI Backend on http://localhost:8088..."
+backend/venv/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8088 --app-dir backend &
 BACKEND_PID=$!
 
 echo "🚀 Starting Vite React Frontend on http://localhost:5173..."
@@ -35,7 +35,7 @@ echo ""
 echo "=========================================================================="
 echo "  ✅ VERITAS AI IS LIVE!"
 echo "  🌐 Web Dashboard   : http://localhost:5173"
-echo "  📡 API OpenAPI Docs : http://localhost:8000/docs"
+echo "  📡 API OpenAPI Docs : http://localhost:8088/docs"
 echo "  🛑 Press Ctrl+C to stop all services"
 echo "=========================================================================="
 
