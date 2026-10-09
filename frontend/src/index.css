@@ -1,45 +1,53 @@
 @import "tailwindcss";
 
 :root {
-  --bg-page: #0d1117;
-  --bg-panel: #161b22;
-  --bg-sub: #0d1117;
-  --border-subtle: #21262d;
-  --border-strong: #30363d;
-  --text-main: #f0f6fc;
-  --text-muted: #8b949e;
-  --terminal-amber: #d29922;
-  --terminal-blue: #58a6ff;
-  --terminal-red: #f85149;
-  --terminal-green: #3fb950;
+  --acentra-obsidian: #042126;
+  --acentra-green: #209b47;
+  --acentra-green-hover: #1b843c;
+  --acentra-teal: #005f68;
+  --acentra-mint: #acf2e5;
+  --acentra-navy: #15497e;
+  --acentra-white: #ffffff;
+  --acentra-glacier: #f2fcff;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
-  background-color: #0b0e14;
-  color: #f0f6fc;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, monospace, sans-serif;
+  background-color: var(--acentra-glacier);
+  color: var(--acentra-obsidian);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Bloomberg terminal monospaced table styles */
-.font-terminal {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+/* Calm, Matte Acentra Health Corporate Canvas from ClaimShield */
+.nexus-grid-bg {
+  background-color: #f2fcff;
+  background-image: 
+    linear-gradient(to right, rgba(4, 33, 38, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(4, 33, 38, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0e14;
+  background: #f2fcff;
 }
 ::-webkit-scrollbar-thumb {
-  background: #21262d;
-  border-radius: 2px;
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #30363d;
+  background: #94a3b8;
 }
