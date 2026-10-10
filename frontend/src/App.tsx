@@ -551,101 +551,209 @@ export default function App() {
               </div>
             </div>
 
-            {/* Navigation Tabs Bar - Clean Matte Segmented Controller */}
-            <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-200/90 pb-3 gap-3">
-              <div className="flex items-center bg-slate-100/90 p-1 rounded-xl overflow-x-auto w-full md:w-auto text-xs border border-slate-200/60 shadow-xs">
-                <button
-                  onClick={() => setActiveTab('contradictions')}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    activeTab === 'contradictions'
-                      ? 'bg-white text-[#005f68] shadow-xs'
-                      : 'text-slate-600 hover:text-[#042126]'
-                  }`}
-                >
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Contradictions ({auditResult.contradictions.length})</span>
-                </button>
+            {/* Master-Detail Layout: Left Feature Navigation Sidebar + Right Content Canvas */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Feature Sidebar (Left Col - 3 Cols on LG, 4 on XL) */}
+              <div className="lg:col-span-4 xl:col-span-3 space-y-3 lg:sticky lg:top-20">
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs">
+                  <div className="px-3 pt-2 pb-2.5 flex items-center justify-between border-b border-slate-100">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Forensic Tooling
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#acf2e5]/50 text-[#005f68]">
+                      6 Modules
+                    </span>
+                  </div>
 
-                <button
-                  onClick={() => setActiveTab('grill')}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    activeTab === 'grill'
-                      ? 'bg-[#e11d48] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-[#042126]'
-                  }`}
-                >
-                  <Flame className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Grill Founder ({auditResult.grill_questions?.length || 3})</span>
-                </button>
+                  <nav className="mt-2 space-y-1">
+                    <button
+                      onClick={() => setActiveTab('contradictions')}
+                      className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between ${
+                        activeTab === 'contradictions'
+                          ? 'bg-[#005f68] text-white shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          activeTab === 'contradictions' ? 'bg-white/15 text-white' : 'bg-amber-50 text-amber-700'
+                        }`}>
+                          <AlertTriangle className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold truncate">Contradictions</div>
+                          <div className={`text-[10px] truncate ${activeTab === 'contradictions' ? 'text-teal-100' : 'text-slate-400'}`}>
+                            Marketing vs Legal IP
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        activeTab === 'contradictions' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {auditResult.contradictions.length}
+                      </span>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('collision')}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    activeTab === 'collision'
-                      ? 'bg-white text-[#005f68] shadow-xs'
-                      : 'text-slate-600 hover:text-[#042126]'
-                  }`}
-                >
-                  <Scale className="w-3.5 h-3.5 text-[#005f68]" />
-                  <span>Prior-Art Radar</span>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('grill')}
+                      className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between ${
+                        activeTab === 'grill'
+                          ? 'bg-[#e11d48] text-white shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          activeTab === 'grill' ? 'bg-white/15 text-white' : 'bg-rose-50 text-rose-700'
+                        }`}>
+                          <Flame className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold truncate">Grill Founder</div>
+                          <div className={`text-[10px] truncate ${activeTab === 'grill' ? 'text-rose-100' : 'text-slate-400'}`}>
+                            Red-Team Interrogation
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        activeTab === 'grill' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-800'
+                      }`}>
+                        {auditResult.grill_questions?.length || 3}
+                      </span>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('radar')}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    activeTab === 'radar'
-                      ? 'bg-white text-[#005f68] shadow-xs'
-                      : 'text-slate-600 hover:text-[#042126]'
-                  }`}
-                >
-                  <BarChart3 className="w-3.5 h-3.5 text-[#209b47]" />
-                  <span>Risk Charts</span>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('collision')}
+                      className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between ${
+                        activeTab === 'collision'
+                          ? 'bg-[#005f68] text-white shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          activeTab === 'collision' ? 'bg-white/15 text-white' : 'bg-teal-50 text-[#005f68]'
+                        }`}>
+                          <Scale className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold truncate">Prior-Art Radar</div>
+                          <div className={`text-[10px] truncate ${activeTab === 'collision' ? 'text-teal-100' : 'text-slate-400'}`}>
+                            Litigation & Moat Threat
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                        activeTab === 'collision' 
+                          ? 'bg-white/20 text-white' 
+                          : auditResult.prior_art_collision?.litigation_threat_level === 'HIGH'
+                            ? 'bg-rose-100 text-rose-700'
+                            : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {auditResult.prior_art_collision?.litigation_threat_level || 'EVAL'}
+                      </span>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('timeline')}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    activeTab === 'timeline'
-                      ? 'bg-white text-[#005f68] shadow-xs'
-                      : 'text-slate-600 hover:text-[#042126]'
-                  }`}
-                >
-                  <Activity className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Timeline</span>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('radar')}
+                      className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between ${
+                        activeTab === 'radar'
+                          ? 'bg-[#005f68] text-white shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          activeTab === 'radar' ? 'bg-white/15 text-white' : 'bg-emerald-50 text-emerald-700'
+                        }`}>
+                          <BarChart3 className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold truncate">Risk Charts</div>
+                          <div className={`text-[10px] truncate ${activeTab === 'radar' ? 'text-teal-100' : 'text-slate-400'}`}>
+                            5-Pillar Spider Radar
+                          </div>
+                        </div>
+                      </div>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('evidence')}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center space-x-1.5 shrink-0 ${
-                    activeTab === 'evidence'
-                      ? 'bg-white text-[#005f68] shadow-xs'
-                      : 'text-slate-600 hover:text-[#042126]'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Evidence Vault</span>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('timeline')}
+                      className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between ${
+                        activeTab === 'timeline'
+                          ? 'bg-[#005f68] text-white shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          activeTab === 'timeline' ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-700'
+                        }`}>
+                          <Activity className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold truncate">Timeline</div>
+                          <div className={`text-[10px] truncate ${activeTab === 'timeline' ? 'text-teal-100' : 'text-slate-400'}`}>
+                            Lab ➔ IP ➔ Commercial PR
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        activeTab === 'timeline' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {auditResult.timeline.length}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('evidence')}
+                      className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between ${
+                        activeTab === 'evidence'
+                          ? 'bg-[#005f68] text-white shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          activeTab === 'evidence' ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-700'
+                        }`}>
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold truncate">Evidence Vault</div>
+                          <div className={`text-[10px] truncate ${activeTab === 'evidence' ? 'text-teal-100' : 'text-slate-400'}`}>
+                            Raw Multi-Engine Citations
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  </nav>
+                </div>
+
+                {/* Sidebar Quick Export & Actions Card */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                    Institutional Actions
+                  </span>
+                  <button
+                    onClick={handleExportDossier}
+                    className="w-full flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-[#209b47] hover:bg-[#1b843c] text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export Dossier (.MD)</span>
+                  </button>
+                  <button
+                    onClick={handleCopySummary}
+                    className="w-full flex items-center justify-center space-x-1.5 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs transition-colors cursor-pointer"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-[#209b47]" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                    <span>{copied ? 'Copied Summary' : 'Copy Summary'}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Action Toolbar */}
-              <div className="flex items-center space-x-2 shrink-0 text-xs">
-                <button
-                  onClick={handleCopySummary}
-                  className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold shadow-xs cursor-pointer"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-[#209b47]" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-                  <span>{copied ? 'Copied' : 'Copy Summary'}</span>
-                </button>
-
-                <button
-                  onClick={handleExportDossier}
-                  className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-[#209b47] hover:bg-[#1b843c] text-white font-bold shadow-xs cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export Investor Dossier (.MD)</span>
-                </button>
-              </div>
-            </div>
+              {/* Main Feature Content Stage (Right Col - 8 to 9 Cols) */}
+              <div className="lg:col-span-8 xl:col-span-9 space-y-4">
 
             {/* TAB 1: Contradiction Matrix */}
             {activeTab === 'contradictions' && (
@@ -1032,6 +1140,8 @@ export default function App() {
                 )}
               </div>
             )}
+              </div>
+            </div>
           </div>
         )}
       </main>
