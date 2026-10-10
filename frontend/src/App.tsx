@@ -71,7 +71,9 @@ export default function App() {
     'Proprietary ceramic separator eliminates dendrites, enabling 15-minute 80% charge with zero thermal runaway.'
   );
   
-  const [serpapiKey, setSerpapiKey] = useState<string>('');
+  const [serpapiKey, setSerpapiKey] = useState<string>(() => {
+    return localStorage.getItem('veritas_serpapi_key') || 'a562a4175f7dc942737ea5cbf8f1488a5948fc5552dd634e75d3e4190196a1da';
+  });
   const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [auditResult, setAuditResult] = useState<AuditData | null>(() => 
@@ -274,10 +276,14 @@ export default function App() {
 
             <button
               onClick={() => setShowKeyModal(!showKeyModal)}
-              className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[#FBF8F1] hover:bg-[#F0EBE2] text-[#172235] border border-[#D8D1C5] transition-colors cursor-pointer"
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors cursor-pointer ${
+                serpapiKey 
+                  ? 'bg-[#E4EFEA] border-[#39745A]/40 text-[#39745A]'
+                  : 'bg-[#FBF8F1] border-[#D8D1C5] text-[#172235] hover:bg-[#F0EBE2]'
+              }`}
             >
               <KeyRound className="w-3.5 h-3.5 text-[#183B63]" />
-              <span className="hidden sm:inline">{serpapiKey ? 'Key Set' : 'SerpApi Key'}</span>
+              <span className="hidden sm:inline">{serpapiKey ? 'Live Key Active' : 'Set SerpApi Key'}</span>
             </button>
           </div>
         </div>
@@ -292,7 +298,7 @@ export default function App() {
               <span>SerpApi Gateway Credentials</span>
             </h3>
             <p className="text-xs text-[#667085] mt-2 leading-relaxed">
-              Veritas Nexus includes pre-cached verified datasets for 1-click evaluation. To query live web searches, enter your SerpApi key below:
+              Your SerpApi key enables live real-time queries across Google Patents, Google Scholar, Google News, and Web engines.
             </p>
             <input
               type="password"
@@ -303,7 +309,12 @@ export default function App() {
             />
             <div className="mt-5 flex justify-end space-x-2">
               <button
-                onClick={() => setShowKeyModal(false)}
+                onClick={() => {
+                  if (serpapiKey.trim()) {
+                    localStorage.setItem('veritas_serpapi_key', serpapiKey.trim());
+                  }
+                  setShowKeyModal(false);
+                }}
                 className="px-4 py-2 rounded-md text-xs font-bold bg-[#183B63] hover:bg-[#102A46] text-white transition-colors cursor-pointer"
               >
                 Save Credentials
