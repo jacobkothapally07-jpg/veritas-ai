@@ -88,9 +88,10 @@ chmod +x run.sh
 ```
 
 ### Endpoints:
-* **Interactive Frontend Dashboard:** `http://localhost:5173`
-* **FastAPI Backend Server:** `http://localhost:8000`
-* **OpenAPI Interactive Documentation:** `http://localhost:8000/docs`
+* 🌐 **Live Public Deployment:** [https://veritas-nexus-ai.vercel.app](https://veritas-nexus-ai.vercel.app)
+* **Interactive Local Dashboard:** `http://localhost:5173`
+* **FastAPI Backend Server:** `http://localhost:8088`
+* **OpenAPI Interactive Documentation:** `http://localhost:8088/docs`
 
 ---
 

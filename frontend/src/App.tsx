@@ -436,6 +436,16 @@ export default function App() {
             <span className="hidden sm:inline text-xs text-[#005f68] font-medium">
               Deep-Tech Patent & Forensic Science Reality Engine
             </span>
+            <span className="text-[#042126]/25 text-xs hidden md:inline">•</span>
+            <a 
+              href="https://veritas-nexus-ai.vercel.app" 
+              target="_blank" 
+              rel="noreferrer"
+              className="hidden md:inline-flex items-center gap-1 text-[11px] font-mono text-[#209b47] hover:underline bg-[#e4fef4] border border-[#209b47]/30 px-2 py-0.5 rounded-md"
+            >
+              <span>veritas-nexus-ai.vercel.app</span>
+              <ExternalLink className="w-2.5 h-2.5" />
+            </a>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

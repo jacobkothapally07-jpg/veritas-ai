@@ -42,7 +42,7 @@ SCENES = [
     {
         "id": "scene_06_sidebar_dossier",
         "action": "dossier",
-        "voice": "Finally, the agent calculates the capital at risk—flagging 1.85 billion dollars in downside exposure—and compiles everything into an institutional investor dossier you can download with one click. Veritas Nexus turns weeks of technical due diligence into instant engineering truth. Thanks for watching."
+        "voice": "Finally, the agent calculates the capital at risk—flagging 1.85 billion dollars in downside exposure—and compiles everything into an institutional investor dossier you can download with one click. Veritas Nexus turns weeks of technical due diligence into instant engineering truth. Try our live deployment at veritas-nexus-ai dot vercel dot app. Thanks for watching."
     }
 ]
 
