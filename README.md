@@ -5,6 +5,13 @@
 
 ---
 
+## 🎥 Full-HD Video Demonstration
+> **Complete forensic walkthrough & product demonstration:**  
+> **Video File:** [`VERITAS_NEXUS_DEMO.mp4`](VERITAS_NEXUS_DEMO.mp4) (Full HD `1920x1080` with studio neural narration)  
+> *Showcases: Naval Cream executive UI, 6-module forensic sidebar, ClaimShield StatsBar, Contradiction Engine, Grill the Founder suite, Prior-Art Collision Radar, and 1-click Investor Dossier export.*
+
+---
+
 ## 🎯 Executive Summary
 Startups and tech corporations constantly overhype unproven claims: *"We created a room-temperature superconductor"*, *"Our battery separator eliminates dendrites completely"*, *"Our humanoid robot is 100% autonomous"*. 
 

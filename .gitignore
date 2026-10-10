@@ -9,3 +9,9 @@ venv/
 node_modules/
 dist/
 .DS_Store
+
+# Temporary video processing scratch
+video_frames/
+video_audio/
+preview_sample_*.mp4
+sample_*.mp3
