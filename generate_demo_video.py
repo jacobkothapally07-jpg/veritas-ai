@@ -105,8 +105,8 @@ def capture_scenes():
         time.sleep(1)
         page.screenshot(path=os.path.join(FRAMES_DIR, "scene_05_sidebar_collision.png"))
 
-        # Scene 6: Click Risk Charts on the Sidebar
-        page.locator("text=Risk Charts").first.click()
+        # Scene 6: Click 5D Risk Charts on the Sidebar
+        page.locator("text=5D Risk Charts").first.click()
         time.sleep(1)
         page.screenshot(path=os.path.join(FRAMES_DIR, "scene_06_sidebar_dossier.png"))
 
