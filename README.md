@@ -1,7 +1,8 @@
 # 🛡️ VERITAS AI
 > **Autonomous Multi-Engine Deep-Tech Due Diligence & Patent Reality Checker**  
 > *Submitted to the **SerpApi India Hackathon 2026** — **Track 1: AI Agents***  
-> *Core Innovation:* **Cross-Engine Forensic Verification (Patents vs. Scholar vs. News vs. Web)**
+> *Core Innovation:* **Cross-Engine Forensic Verification (Patents vs. Scholar vs. News vs. Web)**  
+> 🌐 **Live Deployment URL:** [https://veritas-nexus-ai.vercel.app](https://veritas-nexus-ai.vercel.app)
 
 ---
 
